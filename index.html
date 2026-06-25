@@ -7,9 +7,15 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="game" width="800" height="600"></canvas>
+  <div id="name-screen">
+    <h1>Fantasy Adventure</h1>
+    <input type="text" id="player-name" placeholder="Enter your name" maxlength="12">
+    <button type="button" id="btn-start">Start Game</button>
+  </div>
 
-  <div id="controls">
+  <canvas id="game" width="800" height="600" class="hidden"></canvas>
+
+  <div id="controls" class="hidden">
     <div id="actions">
       <button type="button" class="ctrl-btn action-btn" id="btn-melee">⚔️</button>
       <button type="button" class="ctrl-btn action-btn" id="btn-ranged">🏹</button>

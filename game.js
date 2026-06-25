@@ -54,6 +54,43 @@ let gameOver = false;
 let gameWon = false;
 let paused = false;
 
+let gameStarted = false;
+let playerName = "Player";
+let startTime = 0;
+let finishSeconds = 0;
+let leaderboard = [];
+
+async function saveScore(name, seconds) {
+  try {
+    const res = await fetch("/api/leaderboard", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, seconds }),
+    });
+    const data = await res.json();
+    leaderboard = data.leaderboard || [];
+  } catch (err) {
+    console.error("Could not save score:", err);
+  }
+}
+
+function startGame() {
+  const input = document.getElementById("player-name");
+  playerName = input.value.trim() || "Player";
+  input.blur();
+  document.getElementById("name-screen").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+  document.getElementById("controls").classList.remove("hidden");
+  startTime = Date.now();
+  gameStarted = true;
+  ensureMusicStarted();
+}
+
+document.getElementById("btn-start").addEventListener("click", startGame);
+document.getElementById("player-name").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") startGame();
+});
+
 const MAX_LEVEL = 5;
 let level = 1;
 let levelMessageUntil = 0;
@@ -219,7 +256,7 @@ canvas.addEventListener("touchstart", () => {
 });
 
 function update() {
-  if (gameOver || gameWon || paused) return;
+  if (!gameStarted || gameOver || gameWon || paused) return;
 
   let dx = 0;
   let dy = 0;
@@ -334,6 +371,8 @@ function checkCastleWin() {
   if (dist < CASTLE_RADIUS) {
     if (level >= MAX_LEVEL) {
       gameWon = true;
+      finishSeconds = (Date.now() - startTime) / 1000;
+      saveScore(playerName, finishSeconds);
     } else {
       advanceLevel();
     }
@@ -546,11 +585,20 @@ function draw() {
   }
 
   if (gameWon) {
-    ctx.font = "60px serif";
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    ctx.font = "50px serif";
     ctx.fillStyle = "black";
-    ctx.fillText("YOU WIN!", canvas.width / 2, canvas.height / 2);
-    ctx.font = "24px serif";
-    ctx.fillText("Press E or tap to play again", canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillText("YOU WIN!", cx, cy - 110);
+    ctx.font = "22px serif";
+    ctx.fillText(`Your time: ${finishSeconds.toFixed(1)}s`, cx, cy - 70);
+    ctx.font = "20px serif";
+    ctx.fillText("Leaderboard", cx, cy - 35);
+    leaderboard.forEach((entry, i) => {
+      ctx.fillText(`${i + 1}. ${entry.name} - ${entry.seconds.toFixed(1)}s`, cx, cy - 5 + i * 24);
+    });
+    ctx.font = "20px serif";
+    ctx.fillText("Press E or tap to play again", cx, cy - 5 + leaderboard.length * 24 + 30);
   }
 
   if (paused) {

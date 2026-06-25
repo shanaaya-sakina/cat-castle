@@ -25,6 +25,37 @@ body {
   display: none;
 }
 
+.hidden {
+  display: none !important;
+}
+
+#name-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+#name-screen input {
+  font-size: 18px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  text-align: center;
+}
+
+#name-screen button {
+  font-size: 18px;
+  padding: 8px 24px;
+  border-radius: 6px;
+  border: none;
+  background: #e0a020;
+  cursor: pointer;
+}
+
 @media (pointer: coarse) {
   #controls {
     display: block;
