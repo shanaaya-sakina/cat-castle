@@ -56,6 +56,22 @@ body {
   cursor: pointer;
 }
 
+#name-leaderboard {
+  margin-top: 12px;
+}
+
+#name-leaderboard h2 {
+  font-size: 18px;
+  margin: 0 0 4px;
+}
+
+#name-leaderboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+}
+
 @media (pointer: coarse) {
   #controls {
     display: block;

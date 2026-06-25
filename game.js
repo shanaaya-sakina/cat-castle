@@ -74,6 +74,22 @@ async function saveScore(name, seconds) {
   }
 }
 
+async function showNameScreenLeaderboard() {
+  const list = document.getElementById("name-leaderboard-list");
+  try {
+    const res = await fetch("/api/leaderboard");
+    const data = await res.json();
+    const entries = data.leaderboard || [];
+    list.innerHTML = entries
+      .map((entry) => `<li>${entry.name} - ${entry.seconds.toFixed(1)}s</li>`)
+      .join("");
+  } catch (err) {
+    console.error("Could not load leaderboard:", err);
+  }
+}
+
+showNameScreenLeaderboard();
+
 function startGame() {
   const input = document.getElementById("player-name");
   playerName = input.value.trim() || "Player";
