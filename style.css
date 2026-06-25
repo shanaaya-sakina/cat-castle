@@ -31,40 +31,85 @@ body {
   }
 }
 
-#dpad {
-  position: fixed;
-  left: 16px;
-  bottom: 16px;
-  display: grid;
-  grid-template-columns: 56px 56px 56px;
-  grid-template-rows: 56px 56px 56px;
-  gap: 4px;
-}
-
-#btn-up { grid-area: 1 / 2; }
-#btn-left { grid-area: 2 / 1; }
-#btn-right { grid-area: 2 / 3; }
-#btn-down { grid-area: 3 / 2; }
-
-#actions {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  display: flex;
-  gap: 14px;
-}
-
 .ctrl-btn {
-  width: 56px;
-  height: 56px;
-  font-size: 26px;
-  border-radius: 12px;
   border: none;
-  background: rgba(255, 255, 255, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+}
+
+#dpad {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  display: grid;
+  grid-template-columns: 50px 50px 50px;
+  grid-template-rows: 50px 50px 50px;
+  gap: 3px;
+  padding: 8px;
+  background: linear-gradient(145deg, #2b2b2b, #161616);
+  border-radius: 18px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.dpad-btn {
+  background: linear-gradient(145deg, #4a4a4a, #2e2e2e);
+  color: #eee;
+  font-size: 18px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+.dpad-btn:active {
+  background: linear-gradient(145deg, #2e2e2e, #1a1a1a);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+#btn-up { grid-area: 1 / 2; border-radius: 10px 10px 4px 4px; }
+#btn-left { grid-area: 2 / 1; border-radius: 10px 4px 4px 10px; }
+#btn-right { grid-area: 2 / 3; border-radius: 4px 10px 10px 4px; }
+#btn-down { grid-area: 3 / 2; border-radius: 4px 4px 10px 10px; }
+
+#dpad-center {
+  grid-area: 2 / 2;
+  background: #0c0c0c;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+#actions {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  display: grid;
+  grid-template-columns: 56px 56px;
+  grid-template-rows: 56px 56px;
+  gap: 10px;
+}
+
+#btn-melee { grid-area: 1 / 2; }
+#btn-ranged { grid-area: 2 / 1; }
+
+.action-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 24px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.action-btn:active {
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+#btn-melee {
+  background: radial-gradient(circle at 30% 30%, #ff6b6b, #c0392b);
+  color: #fff;
+}
+
+#btn-ranged {
+  background: radial-gradient(circle at 30% 30%, #54a0ff, #2e6dd1);
+  color: #fff;
 }
