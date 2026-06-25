@@ -173,6 +173,51 @@ window.addEventListener("keydown", (e) => {
 });
 window.addEventListener("keyup", (e) => (keys[e.key] = false));
 
+function ensureMusicStarted() {
+  if (!musicStarted) {
+    musicStarted = true;
+    startMusic();
+  }
+}
+
+function bindHoldButton(id, keyName) {
+  const btn = document.getElementById(id);
+  btn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    ensureMusicStarted();
+    keys[keyName] = true;
+  });
+  btn.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    keys[keyName] = false;
+  });
+  btn.addEventListener("touchcancel", (e) => {
+    e.preventDefault();
+    keys[keyName] = false;
+  });
+}
+
+bindHoldButton("btn-up", "ArrowUp");
+bindHoldButton("btn-down", "ArrowDown");
+bindHoldButton("btn-left", "ArrowLeft");
+bindHoldButton("btn-right", "ArrowRight");
+
+document.getElementById("btn-melee").addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  ensureMusicStarted();
+  meleeAttack();
+});
+
+document.getElementById("btn-ranged").addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  ensureMusicStarted();
+  rangedAttack();
+});
+
+canvas.addEventListener("touchstart", () => {
+  if (gameOver || gameWon) location.reload();
+});
+
 function update() {
   if (gameOver || gameWon || paused) return;
 
@@ -497,7 +542,7 @@ function draw() {
     ctx.fillStyle = "black";
     ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
     ctx.font = "24px serif";
-    ctx.fillText("Press E to play again", canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillText("Press E or tap to play again", canvas.width / 2, canvas.height / 2 + 50);
   }
 
   if (gameWon) {
@@ -505,7 +550,7 @@ function draw() {
     ctx.fillStyle = "black";
     ctx.fillText("YOU WIN!", canvas.width / 2, canvas.height / 2);
     ctx.font = "24px serif";
-    ctx.fillText("Press E to play again", canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillText("Press E or tap to play again", canvas.width / 2, canvas.height / 2 + 50);
   }
 
   if (paused) {

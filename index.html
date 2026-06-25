@@ -2,11 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Fantasy Adventure</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <canvas id="game" width="800" height="600"></canvas>
+
+  <div id="controls">
+    <div id="dpad">
+      <button type="button" class="ctrl-btn" id="btn-up">⬆️</button>
+      <button type="button" class="ctrl-btn" id="btn-left">⬅️</button>
+      <button type="button" class="ctrl-btn" id="btn-right">➡️</button>
+      <button type="button" class="ctrl-btn" id="btn-down">⬇️</button>
+    </div>
+    <div id="actions">
+      <button type="button" class="ctrl-btn" id="btn-melee">⚔️</button>
+      <button type="button" class="ctrl-btn" id="btn-ranged">🏹</button>
+    </div>
+  </div>
+
   <script src="game.js"></script>
 </body>
 </html>
