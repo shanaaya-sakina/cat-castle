@@ -70,6 +70,25 @@ body {
   z-index: 10;
 }
 
+#instructions {
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  padding: 10px 20px;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+#instructions h2 {
+  text-align: center;
+  font-size: 16px;
+  margin: 0 0 6px;
+}
+
+#instructions p {
+  margin: 0;
+}
+
 #name-leaderboard {
   margin-top: 12px;
 }
