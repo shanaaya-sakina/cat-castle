@@ -212,6 +212,8 @@ function toggleMusic() {
 
 const keys = {};
 window.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT") return;
+
   if (!musicStarted) {
     musicStarted = true;
     startMusic();
@@ -220,7 +222,6 @@ window.addEventListener("keydown", (e) => {
   keys[e.key] = true;
   if (e.key === " ") meleeAttack();
   if (e.key === "f") rangedAttack();
-  if (e.key === "e") location.reload();
   if (e.key === "Escape") paused = !paused;
   if (e.key === "m") toggleMusic();
 });
@@ -267,9 +268,7 @@ document.getElementById("btn-ranged").addEventListener("touchstart", (e) => {
   rangedAttack();
 });
 
-canvas.addEventListener("touchstart", () => {
-  if (gameOver || gameWon) location.reload();
-});
+document.getElementById("btn-again").addEventListener("click", () => location.reload());
 
 function update() {
   if (!gameStarted || gameOver || gameWon || paused) return;
@@ -389,6 +388,7 @@ function checkCastleWin() {
       gameWon = true;
       finishSeconds = (Date.now() - startTime) / 1000;
       saveScore(playerName, finishSeconds);
+      document.getElementById("btn-again").classList.remove("hidden");
     } else {
       advanceLevel();
     }
@@ -434,6 +434,7 @@ function checkPlayerHit() {
       if (player.hp <= 0) {
         player.hp = 0;
         gameOver = true;
+        document.getElementById("btn-again").classList.remove("hidden");
       }
       break;
     }
@@ -597,7 +598,7 @@ function draw() {
     ctx.fillStyle = "black";
     ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
     ctx.font = "24px serif";
-    ctx.fillText("Press E or tap to play again", canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillText("", canvas.width / 2, canvas.height / 2 + 50);
   }
 
   if (gameWon) {
@@ -614,7 +615,6 @@ function draw() {
       ctx.fillText(`${i + 1}. ${entry.name} - ${entry.seconds.toFixed(1)}s`, cx, cy - 5 + i * 24);
     });
     ctx.font = "20px serif";
-    ctx.fillText("Press E or tap to play again", cx, cy - 5 + leaderboard.length * 24 + 30);
   }
 
   if (paused) {

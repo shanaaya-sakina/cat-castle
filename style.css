@@ -56,6 +56,20 @@ body {
   cursor: pointer;
 }
 
+#btn-again {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  padding: 10px 28px;
+  border-radius: 8px;
+  border: none;
+  background: #e0a020;
+  cursor: pointer;
+  z-index: 10;
+}
+
 #name-leaderboard {
   margin-top: 12px;
 }
