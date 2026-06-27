@@ -5,6 +5,10 @@ html, body {
   touch-action: none;
 }
 
+button {
+  touch-action: manipulation;
+}
+
 body {
   display: flex;
   justify-content: center;
