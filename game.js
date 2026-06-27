@@ -39,7 +39,7 @@ function drawMap() {
 const player = {
   x: 400,
   y: 300,
-  size: 32,
+  size: 48,
   speed: 4,
   color: "#e0a020",
   facingX: 1,
@@ -96,7 +96,6 @@ function startGame() {
   input.blur();
   document.getElementById("name-screen").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
-  document.getElementById("controls").classList.remove("hidden");
   startTime = Date.now();
   gameStarted = true;
   ensureMusicStarted();
@@ -158,13 +157,14 @@ let lastBoosterSpawn = Date.now();
 let damageBoostUntil = 0;
 let shieldUntil = 0;
 
-const projectiles = [];
 const MELEE_RANGE = 60;
 const MELEE_COOLDOWN = 400;
-const RANGED_COOLDOWN = 500;
 let lastMeleeTime = 0;
-let lastRangedTime = 0;
-let meleeFlashUntil =  0;
+let meleeFlashUntil = 0;
+
+let playerDirX = 0;
+let playerDirY = 0;
+const CENTER_ATTACK_RADIUS = 100;
 
 let audioCtx = null;
 let musicStarted = false;
@@ -221,9 +221,12 @@ window.addEventListener("keydown", (e) => {
 
   keys[e.key] = true;
   if (e.key === " ") meleeAttack();
-  if (e.key === "f") rangedAttack();
   if (e.key === "Escape") paused = !paused;
   if (e.key === "m") toggleMusic();
+  if (e.key === "ArrowUp" || e.key === "w") { playerDirX = 0; playerDirY = -1; }
+  if (e.key === "ArrowDown" || e.key === "s") { playerDirX = 0; playerDirY = 1; }
+  if (e.key === "ArrowLeft" || e.key === "a") { playerDirX = -1; playerDirY = 0; }
+  if (e.key === "ArrowRight" || e.key === "d") { playerDirX = 1; playerDirY = 0; }
 });
 window.addEventListener("keyup", (e) => (keys[e.key] = false));
 
@@ -234,60 +237,50 @@ function ensureMusicStarted() {
   }
 }
 
-function bindHoldButton(id, keyName) {
-  const btn = document.getElementById(id);
-  btn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    ensureMusicStarted();
-    keys[keyName] = true;
-  });
-  btn.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    keys[keyName] = false;
-  });
-  btn.addEventListener("touchcancel", (e) => {
-    e.preventDefault();
-    keys[keyName] = false;
-  });
+
+canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  ensureMusicStarted();
+  handleCanvasTouch(e.touches[0]);
+}, { passive: false });
+
+function handleCanvasTouch(touch) {
+  if (!gameStarted || gameOver || gameWon || paused) return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const tx = (touch.clientX - rect.left) * scaleX;
+  const ty = (touch.clientY - rect.top) * scaleY;
+
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const dx = tx - cx;
+  const dy = ty - cy;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  if (dist < CENTER_ATTACK_RADIUS) {
+    meleeAttack();
+  } else if (Math.abs(dy) * canvas.width > Math.abs(dx) * canvas.height) {
+    playerDirX = 0;
+    playerDirY = dy > 0 ? 1 : -1;
+  } else {
+    playerDirX = dx > 0 ? 1 : -1;
+    playerDirY = 0;
+  }
 }
-
-bindHoldButton("btn-up", "ArrowUp");
-bindHoldButton("btn-down", "ArrowDown");
-bindHoldButton("btn-left", "ArrowLeft");
-bindHoldButton("btn-right", "ArrowRight");
-
-document.getElementById("btn-melee").addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  ensureMusicStarted();
-  meleeAttack();
-});
-
-document.getElementById("btn-ranged").addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  ensureMusicStarted();
-  rangedAttack();
-});
 
 document.getElementById("btn-again").addEventListener("click", () => location.reload());
 
 function update() {
   if (!gameStarted || gameOver || gameWon || paused) return;
 
-  let dx = 0;
-  let dy = 0;
-  if (keys["ArrowUp"] || keys["w"]) dy -= 1;
-  if (keys["ArrowDown"] || keys["s"]) dy += 1;
-  if (keys["ArrowLeft"] || keys["a"]) dx -= 1;
-  if (keys["ArrowRight"] || keys["d"]) dx += 1;
-
-  if (dx !== 0 || dy !== 0) {
-    player.facingX = dx;
-    player.facingY = dy;
+  if (playerDirX !== 0 || playerDirY !== 0) {
+    player.facingX = playerDirX;
+    player.facingY = playerDirY;
   }
-  movePlayer(dx, dy);
+  movePlayer(playerDirX, playerDirY);
 
   updateEnemies();
-  updateProjectiles();
   checkPlayerHit();
   checkHealPickup();
   updateCastleMovement();
@@ -479,53 +472,44 @@ function getAttackDamage() {
   return Date.now() < damageBoostUntil ? 99 : 1;
 }
 
-function rangedAttack() {
-  if (paused || gameOver || gameWon) return;
-  const now = Date.now();
-  if (now - lastRangedTime < RANGED_COOLDOWN) return;
-  lastRangedTime = now;
-
-  projectiles.push({
-    x: player.x,
-    y: player.y,
-    dx: player.facingX,
-    dy: player.facingY,
-    speed: 6,
-  });
-}
-
-function updateProjectiles() {
-  for (let i = projectiles.length - 1; i >= 0; i--) {
-    const p = projectiles[i];
-    p.x += p.dx * p.speed;
-    p.y += p.dy * p.speed;
-
-    if (p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height) {
-      projectiles.splice(i, 1);
-      continue;
-    }
-
-    for (const enemy of enemies) {
-      if (!enemy.alive) continue;
-      const dx = enemy.x - p.x;
-      const dy = enemy.y - p.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 24) {
-        hitEnemy(enemy, getAttackDamage());
-        projectiles.splice(i, 1);
-        break;
-      }
-    }
-  }
-}
 
 function hitEnemy(enemy, damage) {
   enemy.hp -= damage;
   if (enemy.hp <= 0) enemy.alive = false;
 }
 
+function drawTouchZones() {
+  if (!("ontouchstart" in window)) return;
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const W = canvas.width;
+  const H = canvas.height;
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(0, 0); ctx.lineTo(W, 0); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(0, H); ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.04)";
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(0, 0); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(W, 0); ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
+
+  ctx.fillStyle = "rgba(255, 80, 80, 0.18)";
+  ctx.beginPath(); ctx.arc(cx, cy, CENTER_ATTACK_RADIUS, 0, Math.PI * 2); ctx.fill();
+
+  ctx.font = "22px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.fillText("▲", cx, cy - H / 3.5);
+  ctx.fillText("▼", cx, cy + H / 3.5);
+  ctx.fillText("◀", cx - W / 3.5, cy);
+  ctx.fillText("▶", cx + W / 3.5, cy);
+  ctx.fillText("⚔️", cx, cy);
+}
+
 function draw() {
   drawMap();
+  drawTouchZones();
 
   ctx.font = "28px serif";
   ctx.textAlign = "center";
@@ -552,11 +536,6 @@ function draw() {
   if (Date.now() < meleeFlashUntil) {
     ctx.font = "28px serif";
     ctx.fillText("⚔️", player.x + player.facingX * 40, player.y + player.facingY * 40);
-  }
-
-  ctx.font = "24px serif";
-  for (const p of projectiles) {
-    ctx.fillText("🏹", p.x, p.y);
   }
 
   for (const enemy of enemies) {
